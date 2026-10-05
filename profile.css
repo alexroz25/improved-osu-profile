@@ -40,3 +40,26 @@
 .osu-profile-plus-hits__count--ok { color: hsl(var(--hsl-lime-2)); }
 .osu-profile-plus-hits__count--meh { color: hsl(var(--hsl-orange-1)); }
 .osu-profile-plus-hits__count--miss { color: hsl(var(--hsl-red-1)); }
+
+/* Beatmap background added by beatmap-bg.js, on the left side of the row.
+   It sits behind the row's content and fades out to the right, so it
+   blends into osu-web's own --bg-main (which also changes on hover).
+   The mask also dims it at the left edge so the title stays readable. */
+.play-detail__group--top.osu-profile-plus-bg {
+  isolation: isolate;
+}
+
+.play-detail__group--top.osu-profile-plus-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 350px;
+  max-width: 100%;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--osu-profile-plus-bg) center / cover no-repeat;
+  mask-image: linear-gradient(to right, rgb(0 0 0 / 0.45), transparent);
+  pointer-events: none;
+}
