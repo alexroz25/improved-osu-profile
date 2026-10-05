@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OsuProfile+ Options</title>
+  <style>
+    body {
+      font: 14px/1.5 system-ui, sans-serif;
+      margin: 16px;
+      min-width: 360px;
+      color: #222;
+    }
+    h2 {
+      font-size: 15px;
+      margin: 0 0 4px;
+    }
+    section + section {
+      margin-top: 20px;
+    }
+    p {
+      margin: 0 0 10px;
+      color: #555;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 2px;
+      padding: 4px 6px;
+    }
+    .status {
+      margin-left: 8px;
+    }
+    .status--error {
+      color: #c00;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <h2>osu! API credentials</h2>
+    <p>
+      Used to show star ratings with mods applied. Create an OAuth application under
+      <a href="https://osu.ppy.sh/home/account/edit#oauth" target="_blank">Account settings → OAuth</a>
+      (any callback URL works, e.g. <code>http://localhost</code>) and paste its details here.
+      Without them, base star ratings are shown.
+    </p>
+    <form id="credentials">
+      <label>Client ID <input id="client-id" inputmode="numeric" autocomplete="off" required></label>
+      <label>Client secret <input id="client-secret" type="password" autocomplete="off" required></label>
+      <button type="submit">Save</button>
+      <span id="credentials-status" class="status"></span>
+    </form>
+  </section>
+
+  <section>
+    <h2>Star rating cache</h2>
+    <p>Modded star ratings are saved for 30 days so each one is only fetched once.</p>
+    <button id="clear-cache" type="button">Clear cache</button>
+    <span id="cache-status" class="status"></span>
+  </section>
+
+  <script src="osu-api.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
