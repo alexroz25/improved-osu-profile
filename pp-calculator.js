@@ -7,6 +7,10 @@
 // accuracy, which keeps this much shorter than the original. The difficulty
 // attributes come from the osu! API, so only these formulas need updating when
 // osu! changes how pp is awarded; star rating changes arrive on their own.
+//
+// To check changes: a ranked SS play's pp is its max pp, so results should
+// match the pp of real SS plays. Stable mania SS plays are the exception:
+// their 300s count as 100% accuracy, but pp rewards MAX judgements more.
 
 const ppCalculator = (() => {
   // --- Shared helpers (osu.Game/Rulesets/Difficulty/Utils/DiffUtils.cs) ---
