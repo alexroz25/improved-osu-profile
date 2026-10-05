@@ -3,10 +3,27 @@
   "name": "OsuProfile+",
   "description": "Improves the look of your osu! profile.",
   "version": "0.1.0",
+  "permissions": ["storage"],
+  "host_permissions": ["https://osu.ppy.sh/*"],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
   "content_scripts": [
     {
-      "matches": ["https://osu.ppy.sh/users/*", "https://osu.ppy.sh/u/*"],
+      "matches": ["https://osu.ppy.sh/*"],
       "css": ["profile.css"]
+    },
+    {
+      "matches": ["https://osu.ppy.sh/*"],
+      "js": ["score-data.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://osu.ppy.sh/*"],
+      "js": ["osu-api.js", "star-rating.js"],
+      "run_at": "document_start"
     }
   ]
 }

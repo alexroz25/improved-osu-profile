@@ -1,1 +1,11 @@
 /* Profile style overrides go here. */
+
+/* Star rating badge added by star-rating.js. The base look comes from
+   osu-web's .difficulty-badge--beatmapset; these only fit it into the row. */
+.play-detail__beatmap-and-time .osu-profile-plus-stars {
+  flex: none;
+  align-self: center;
+  margin-bottom: 0;
+  /* The row uses a 15px gap; keep the badge closer to the difficulty name. */
+  margin-right: -7px;
+}
