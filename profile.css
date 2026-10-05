@@ -10,6 +10,10 @@
   font-size: 12px;
   /* The row uses a 15px gap; keep the badge closer to the difficulty name. */
   margin-right: -7px;
+  /* osu-web sets pointer-events: none on .play-detail__group so the row's
+     link underneath gets the clicks, opting back in only for elements like
+     the title and time. Do the same so hovering shows the badge's title. */
+  pointer-events: auto;
 }
 
 /* Hit counts added by hit-counts.js, coloured like the score page's
