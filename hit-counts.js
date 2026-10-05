@@ -40,17 +40,22 @@
     scheduleRender();
   });
 
+  profileFeatures.subscribe(scheduleRender);
+
   const scoreIdOf = (row) =>
     row.querySelector('.play-detail__bg-link')?.getAttribute('href')?.match(/\/scores\/(\d+)/)?.[1];
 
   const render = () => {
+    const on = profileFeatures.enabled('hitCounts');
+
     // Only the Scores section, matching star-rating.js.
     for (const row of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail')) {
       const accuracy = row.querySelector('.play-detail__accuracy');
       if (!accuracy) continue;
 
       const scoreId = scoreIdOf(row);
-      const scoreCounts = counts.get(scoreId);
+      // Turned off on the options page: remove any counts already shown.
+      const scoreCounts = on ? counts.get(scoreId) : null;
       let el = row.querySelector('.osu-profile-plus-hits');
 
       if (scoreCounts == null) {

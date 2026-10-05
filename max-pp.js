@@ -48,6 +48,7 @@
   });
 
   beatmapAttributes.subscribe(scheduleRender);
+  profileFeatures.subscribe(scheduleRender);
 
   // score id -> max pp, so each one is only calculated once
   const maxPps = new Map();
@@ -67,13 +68,16 @@
     row.querySelector('.play-detail__bg-link')?.getAttribute('href')?.match(/\/scores\/(\d+)/)?.[1];
 
   const render = () => {
+    const on = profileFeatures.enabled('maxPp');
+
     // Only the Scores section, matching star-rating.js.
     for (const row of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail')) {
       const ppColumn = row.querySelector('.play-detail__pp');
       if (!ppColumn) continue;
 
       const scoreId = scoreIdOf(row);
-      const score = scores.get(scoreId);
+      // Turned off on the options page: remove any max pp already shown.
+      const score = on ? scores.get(scoreId) : null;
       const pp = score == null ? null : maxPpOf(scoreId, score);
       let el = ppColumn.querySelector('.osu-profile-plus-max-pp');
 

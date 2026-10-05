@@ -8,6 +8,7 @@ const clientSecretInput = document.getElementById('client-secret');
 const credentialsStatus = document.getElementById('credentials-status');
 const clearCacheButton = document.getElementById('clear-cache');
 const cacheStatus = document.getElementById('cache-status');
+const featureToggles = document.querySelectorAll('#features input[data-feature]');
 
 const setStatus = (element, text, isError = false) => {
   element.textContent = text;
@@ -37,6 +38,15 @@ form.addEventListener('submit', async (event) => {
     const message = error instanceof osuApi.CredentialsError ? 'osu! rejected these credentials' : `Couldn't reach osu! (${error.message})`;
     setStatus(credentialsStatus, message, true);
   }
+});
+
+for (const toggle of featureToggles) {
+  toggle.addEventListener('change', () => profileFeatures.set(toggle.dataset.feature, toggle.checked));
+}
+
+// Also keeps the toggles in sync if they're changed in another options tab.
+profileFeatures.subscribe(() => {
+  for (const toggle of featureToggles) toggle.checked = profileFeatures.enabled(toggle.dataset.feature);
 });
 
 clearCacheButton.addEventListener('click', async () => {
