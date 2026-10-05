@@ -11,3 +11,32 @@
   /* The row uses a 15px gap; keep the badge closer to the difficulty name. */
   margin-right: -7px;
 }
+
+/* Hit counts added by hit-counts.js, coloured like the score page's
+   .score-stats__stat-row--hit-* rows. */
+.play-detail__accuracy-and-weighted-pp .osu-profile-plus-hits {
+  display: inline-block;
+  margin-left: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Each count gets its own fixed slot, like osu-web's min-width on the
+   accuracy and weighted pp beside it, so counts line up from row to row
+   whatever their length. The first (great, or perfect in mania) holds
+   most hits, so it gets room for e.g. "1,234"; the rest fit "999".
+   Longer counts are rare and just widen their own row. */
+.osu-profile-plus-hits__count {
+  display: inline-block;
+  min-width: 3.5ch;
+}
+
+.osu-profile-plus-hits__count:first-child {
+  min-width: 5ch;
+}
+
+.osu-profile-plus-hits__count--perfect { color: hsl(var(--hsl-blue-1)); }
+.osu-profile-plus-hits__count--great { color: hsl(var(--hsl-blue-2)); }
+.osu-profile-plus-hits__count--good { color: hsl(var(--hsl-green-1)); }
+.osu-profile-plus-hits__count--ok { color: hsl(var(--hsl-lime-2)); }
+.osu-profile-plus-hits__count--meh { color: hsl(var(--hsl-orange-1)); }
+.osu-profile-plus-hits__count--miss { color: hsl(var(--hsl-red-1)); }

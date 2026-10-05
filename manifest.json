@@ -22,7 +22,7 @@
     },
     {
       "matches": ["https://osu.ppy.sh/*"],
-      "js": ["osu-api.js", "star-rating.js"],
+      "js": ["osu-api.js", "star-rating.js", "hit-counts.js"],
       "run_at": "document_start"
     }
   ]
