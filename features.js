@@ -23,7 +23,9 @@ const profileFeatures = (() => {
     await chrome.storage.local.set({ features: { ...features, [name]: on } });
   };
 
-  chrome.storage.local.get('features').then(({ features }) => {
+  // Resolves once settings have loaded. Listeners subscribed after that
+  // missed the first notify(), so they can wait on this instead.
+  const ready = chrome.storage.local.get('features').then(({ features }) => {
     settings = features ?? {};
     notify();
   });
@@ -35,5 +37,5 @@ const profileFeatures = (() => {
     notify();
   });
 
-  return { enabled, subscribe, set };
+  return { ready, enabled, subscribe, set };
 })();

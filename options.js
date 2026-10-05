@@ -44,10 +44,15 @@ for (const toggle of featureToggles) {
   toggle.addEventListener('change', () => profileFeatures.set(toggle.dataset.feature, toggle.checked));
 }
 
-// Also keeps the toggles in sync if they're changed in another options tab.
-profileFeatures.subscribe(() => {
+const showFeatures = () => {
   for (const toggle of featureToggles) toggle.checked = profileFeatures.enabled(toggle.dataset.feature);
-});
+};
+
+// Settings can finish loading before this script runs, so wait on ready
+// rather than relying on the first notify. Subscribing also keeps the toggles
+// in sync if they're changed in another options tab.
+profileFeatures.ready.then(showFeatures);
+profileFeatures.subscribe(showFeatures);
 
 clearCacheButton.addEventListener('click', async () => {
   await chrome.storage.local.remove(await cacheKeys());
