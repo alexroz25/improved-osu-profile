@@ -22,7 +22,7 @@
     },
     {
       "matches": ["https://osu.ppy.sh/*"],
-      "js": ["osu-api.js", "star-rating.js", "hit-counts.js", "beatmap-bg.js"],
+      "js": ["osu-api.js", "beatmap-attributes.js", "pp-calculator.js", "star-rating.js", "hit-counts.js", "beatmap-bg.js", "max-pp.js"],
       "run_at": "document_start"
     }
   ]

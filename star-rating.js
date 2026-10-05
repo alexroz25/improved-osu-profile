@@ -5,26 +5,12 @@
 // already requests. Each score includes beatmap.difficulty_rating, the base
 // star rating without mods, which is shown straight away. If the play has mods
 // and OAuth credentials are set on the options page, the badge is then updated
-// to the star rating with those mods, from the osu! API. Modded ratings are
-// cached in chrome.storage.local so each one is only fetched once.
+// to the star rating with those mods, from the osu! API via
+// beatmap-attributes.js, which caches it.
 
 (() => {
-  const CACHE_PREFIX = 'sr:';
-  // Star ratings change only with occasional osu! difficulty reworks.
-  const CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
-  // osu! asks API users to stay around 60 requests per minute.
-  const REQUEST_INTERVAL = 1000;
-  const RATE_LIMIT_BACKOFF = 60 * 1000;
-
   // score id -> { beatmapId, rulesetId, baseRating, mods }
   const scores = new Map();
-  // cache key -> star rating with mods
-  const moddedRatings = new Map();
-  // cache keys already looked up (or being looked up) on this page load
-  const requested = new Set();
-  const queue = [];
-  let queueRunning = false;
-  let apiDisabled = false;
 
   const collectScores = (node) => {
     if (Array.isArray(node)) {
@@ -52,74 +38,7 @@
     scheduleRender();
   });
 
-  // Same star rating for the same difficulty, ruleset and mods (including mod
-  // settings such as a custom DT speed), regardless of mod order.
-  const cacheKey = ({ beatmapId, rulesetId, mods }) => {
-    const sortedMods = [...mods].sort((a, b) => a.acronym.localeCompare(b.acronym));
-    return `${CACHE_PREFIX}${beatmapId}:${rulesetId}:${JSON.stringify(sortedMods)}`;
-  };
-
-  const requestModdedRating = async (score) => {
-    const key = cacheKey(score);
-    if (apiDisabled || requested.has(key)) return;
-    requested.add(key);
-
-    try {
-      const cached = (await chrome.storage.local.get(key))[key];
-      if (cached && Date.now() - cached.savedAt < CACHE_TTL) {
-        moddedRatings.set(key, cached.rating);
-        scheduleRender();
-        return;
-      }
-    } catch {
-      // Storage is unavailable after the extension is reloaded; this tab keeps
-      // showing base ratings until it's refreshed.
-      return;
-    }
-
-    queue.push({ key, score });
-    runQueue();
-  };
-
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  const runQueue = async () => {
-    if (queueRunning) return;
-    queueRunning = true;
-
-    while (queue.length > 0 && !apiDisabled) {
-      const { key, score } = queue.shift();
-      try {
-        const rating = await osuApi.starRating(score.beatmapId, score.rulesetId, score.mods);
-        moddedRatings.set(key, rating);
-        await chrome.storage.local.set({ [key]: { rating, savedAt: Date.now() } });
-        scheduleRender();
-      } catch (error) {
-        if (error instanceof osuApi.CredentialsError) {
-          // No working OAuth app set up; stick to base ratings.
-          apiDisabled = true;
-          queue.length = 0;
-        } else if (error instanceof osuApi.RateLimitError) {
-          queue.unshift({ key, score });
-          await sleep(RATE_LIMIT_BACKOFF);
-        } else {
-          console.warn('OsuProfile+: could not fetch modded star rating', error);
-        }
-      }
-      await sleep(REQUEST_INTERVAL);
-    }
-
-    queueRunning = false;
-  };
-
-  // Pick up credentials entered on the options page without a refresh.
-  chrome.storage.onChanged.addListener((changes) => {
-    if (!changes.clientId && !changes.clientSecret) return;
-    apiDisabled = false;
-    queue.length = 0;
-    requested.clear();
-    scheduleRender();
-  });
+  beatmapAttributes.subscribe(scheduleRender);
 
   // Same colour scale osu-web uses for its difficulty badges
   // (resources/js/utils/beatmap-helper.ts).
@@ -183,12 +102,8 @@
 
       let rating = score.baseRating;
       if (score.mods.length > 0) {
-        const modded = moddedRatings.get(cacheKey(score));
-        if (modded == null) {
-          requestModdedRating(score);
-        } else {
-          rating = modded;
-        }
+        const modded = beatmapAttributes.get(score)?.star_rating;
+        if (typeof modded === 'number') rating = modded;
       }
 
       // React can reuse a row for a different score (e.g. reordering pinned
