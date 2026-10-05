@@ -6,6 +6,8 @@
   flex: none;
   align-self: center;
   margin-bottom: 0;
+  /* osu-web's 13px is larger than the 12px difficulty name beside it. */
+  font-size: 11px;
   /* The row uses a 15px gap; keep the badge closer to the difficulty name. */
   margin-right: -7px;
 }
