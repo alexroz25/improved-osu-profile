@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "OsuProfile+",
+  "description": "Improves the look of your osu! profile.",
+  "version": "0.1.0",
+  "content_scripts": [
+    {
+      "matches": ["https://osu.ppy.sh/users/*", "https://osu.ppy.sh/u/*"],
+      "css": ["profile.css"]
+    }
+  ]
+}
