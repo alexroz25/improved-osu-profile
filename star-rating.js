@@ -39,6 +39,7 @@
   });
 
   beatmapAttributes.subscribe(scheduleRender);
+  profileFeatures.subscribe(scheduleRender);
 
   // Same colour scale osu-web uses for its difficulty badges
   // (resources/js/utils/beatmap-helper.ts).
@@ -86,13 +87,16 @@
   };
 
   const render = () => {
+    const on = profileFeatures.enabled('starRatings');
+
     // Only the Scores section; Historical reuses the same row markup.
     for (const row of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail')) {
       const container = row.querySelector('.play-detail__beatmap-and-time');
       if (!container) continue;
 
       const scoreId = scoreIdOf(row);
-      const score = scores.get(scoreId);
+      // Turned off on the options page: remove any badge already shown.
+      const score = on ? scores.get(scoreId) : null;
       let badge = container.querySelector('.osu-profile-plus-stars');
 
       if (score == null) {

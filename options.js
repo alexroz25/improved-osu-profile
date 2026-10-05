@@ -8,6 +8,7 @@ const clientSecretInput = document.getElementById('client-secret');
 const credentialsStatus = document.getElementById('credentials-status');
 const clearCacheButton = document.getElementById('clear-cache');
 const cacheStatus = document.getElementById('cache-status');
+const featureToggles = document.querySelectorAll('#features input[data-feature]');
 
 const setStatus = (element, text, isError = false) => {
   element.textContent = text;
@@ -38,6 +39,20 @@ form.addEventListener('submit', async (event) => {
     setStatus(credentialsStatus, message, true);
   }
 });
+
+for (const toggle of featureToggles) {
+  toggle.addEventListener('change', () => profileFeatures.set(toggle.dataset.feature, toggle.checked));
+}
+
+const showFeatures = () => {
+  for (const toggle of featureToggles) toggle.checked = profileFeatures.enabled(toggle.dataset.feature);
+};
+
+// Settings can finish loading before this script runs, so wait on ready
+// rather than relying on the first notify. Subscribing also keeps the toggles
+// in sync if they're changed in another options tab.
+profileFeatures.ready.then(showFeatures);
+profileFeatures.subscribe(showFeatures);
 
 clearCacheButton.addEventListener('click', async () => {
   await chrome.storage.local.remove(await cacheKeys());

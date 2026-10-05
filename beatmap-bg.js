@@ -42,16 +42,21 @@
     scheduleRender();
   });
 
+  profileFeatures.subscribe(scheduleRender);
+
   const scoreIdOf = (row) =>
     row.querySelector('.play-detail__bg-link')?.getAttribute('href')?.match(/\/scores\/(\d+)/)?.[1];
 
   const render = () => {
+    const on = profileFeatures.enabled('backgrounds');
+
     // Only the Scores section, matching star-rating.js.
     for (const row of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail')) {
       const group = row.querySelector('.play-detail__group--top');
       if (!group) continue;
 
-      const url = covers.get(scoreIdOf(row));
+      // Turned off on the options page: remove any background already shown.
+      const url = on ? covers.get(scoreIdOf(row)) : null;
 
       if (url == null) {
         group.classList.remove('osu-profile-plus-bg');

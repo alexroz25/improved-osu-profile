@@ -25,6 +25,16 @@
       display: block;
       margin-bottom: 8px;
     }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toggle input {
+      display: inline;
+      width: auto;
+      margin: 0;
+    }
     input {
       display: block;
       width: 100%;
@@ -41,6 +51,17 @@
   </style>
 </head>
 <body>
+  <section>
+    <h2>Profile features</h2>
+    <p>What to add to plays in the Scores section of osu! profiles. Changes apply to open profiles straight away.</p>
+    <div id="features">
+      <label class="toggle"><input type="checkbox" data-feature="starRatings"> Star ratings</label>
+      <label class="toggle"><input type="checkbox" data-feature="hitCounts"> Hit counts</label>
+      <label class="toggle"><input type="checkbox" data-feature="backgrounds"> Beatmap backgrounds</label>
+      <label class="toggle"><input type="checkbox" data-feature="maxPp"> Max pp</label>
+    </div>
+  </section>
+
   <section>
     <h2>osu! API credentials</h2>
     <p>
@@ -64,6 +85,7 @@
     <span id="cache-status" class="status"></span>
   </section>
 
+  <script src="features.js"></script>
   <script src="osu-api.js"></script>
   <script src="options.js"></script>
 </body>
