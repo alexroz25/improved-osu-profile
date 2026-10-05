@@ -1,8 +1,9 @@
-// Minimal osu! API v2 client, shared by the content script and options page.
+// Minimal osu! API v2 client, shared by the content script, popup and options
+// page.
 //
 // Authenticates with the client credentials grant using the user's own OAuth
 // app (entered on the options page), which is enough for public endpoints
-// like beatmap attributes.
+// like beatmaps and their attributes.
 
 const osuApi = (() => {
   const BASE_URL = 'https://osu.ppy.sh';
@@ -42,31 +43,41 @@ const osuApi = (() => {
     return newToken.accessToken;
   }
 
-  // Difficulty attributes of a beatmap (difficulty) with the given mods
-  // applied: its star rating and the skill values pp is calculated from.
-  // `mods` takes the same shape as a score's `mods`, including any mod
-  // settings.
-  async function attributes(beatmapId, rulesetId, mods) {
+  async function request(path, body) {
     for (const refresh of [false, true]) {
-      const res = await fetch(`${BASE_URL}/api/v2/beatmaps/${beatmapId}/attributes`, {
-        method: 'POST',
+      const res = await fetch(`${BASE_URL}/api/v2${path}`, {
+        method: body ? 'POST' : 'GET',
         credentials: 'omit',
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${await getToken({ refresh })}`,
-          'Content-Type': 'application/json',
+          ...(body && { 'Content-Type': 'application/json' }),
         },
-        body: JSON.stringify({ ruleset_id: rulesetId, mods }),
+        body: body && JSON.stringify(body),
       });
 
       // The stored token may have been revoked; retry once with a fresh one.
       if (res.status === 401 && !refresh) continue;
       if (res.status === 429) throw new RateLimitError();
-      if (!res.ok) throw new Error(`Attributes request failed (${res.status})`);
+      if (!res.ok) throw new Error(`Request for ${path} failed (${res.status})`);
 
-      return (await res.json()).attributes;
+      return res.json();
     }
   }
 
-  return { requestToken, attributes, CredentialsError, RateLimitError };
+  // Difficulty attributes of a beatmap (difficulty) with the given mods
+  // applied: its star rating and the skill values pp is calculated from.
+  // `mods` takes the same shape as a score's `mods`, including any mod
+  // settings.
+  async function attributes(beatmapId, rulesetId, mods) {
+    return (await request(`/beatmaps/${beatmapId}/attributes`, { ruleset_id: rulesetId, mods })).attributes;
+  }
+
+  // A beatmap (difficulty) with its settings, object counts and beatmapset.
+  const beatmap = (beatmapId) => request(`/beatmaps/${beatmapId}`);
+
+  // A beatmapset with all its beatmaps.
+  const beatmapset = (beatmapsetId) => request(`/beatmapsets/${beatmapsetId}`);
+
+  return { requestToken, attributes, beatmap, beatmapset, CredentialsError, RateLimitError };
 })();

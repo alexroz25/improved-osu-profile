@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OsuProfile+ pp calculator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Shown instead of the calculator when it can't be used. -->
+  <p id="message" class="message" hidden></p>
+
+  <main id="calculator" hidden>
+    <header class="beatmap">
+      <div class="beatmap__title" id="beatmap-title"></div>
+      <div class="beatmap__version">
+        <span id="beatmap-version"></span>
+        <span class="beatmap__stars" id="beatmap-stars"></span>
+      </div>
+    </header>
+
+    <section class="mods" id="mods" aria-label="Mods"></section>
+
+    <div class="tabs" id="input-tabs" role="tablist">
+      <button type="button" role="tab" data-input="accuracy">Accuracy</button>
+      <button type="button" role="tab" data-input="counts">Hit counts</button>
+    </div>
+
+    <section class="fields" id="fields"></section>
+
+    <section class="result" aria-live="polite">
+      <div class="result__pp"><span id="result-pp">–</span><span class="result__unit">pp</span></div>
+      <div class="result__detail" id="result-detail"></div>
+      <table class="result__table" id="accuracy-table"></table>
+      <p class="result__note">PP calculations may not be 100% accurate.</p>
+    </section>
+  </main>
+
+  <script src="osu-api.js"></script>
+  <script src="beatmap-attributes.js"></script>
+  <script src="pp-calculator.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

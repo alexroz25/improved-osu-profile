@@ -1,6 +1,7 @@
 // Looks up beatmap difficulty attributes from the osu! API for the content
-// scripts that need them (star-rating.js and max-pp.js), so each beatmap and
-// mod combination is only requested once however many features use it.
+// scripts that need them (star-rating.js and max-pp.js) and the popup's
+// calculator, so each beatmap and mod combination is only requested once
+// however many features use it.
 //
 // Lookups need the OAuth credentials from the options page. Attributes are
 // cached in chrome.storage.local, and requests are queued and spaced out to
@@ -18,6 +19,8 @@ const beatmapAttributes = (() => {
   const loaded = new Map();
   // cache keys already looked up (or being looked up) on this page load
   const requested = new Set();
+  // cache keys whose lookup failed on this page load (they aren't retried)
+  const failed = new Set();
   const queue = [];
   const listeners = new Set();
   let queueRunning = false;
@@ -56,11 +59,14 @@ const beatmapAttributes = (() => {
           // show without the API.
           apiDisabled = true;
           queue.length = 0;
+          notify();
         } else if (error instanceof osuApi.RateLimitError) {
           queue.unshift({ key, lookup });
           await sleep(RATE_LIMIT_BACKOFF);
         } else {
           console.warn('OsuProfile+: could not fetch beatmap attributes', error);
+          failed.add(key);
+          notify();
         }
       }
       await sleep(REQUEST_INTERVAL);
@@ -104,14 +110,22 @@ const beatmapAttributes = (() => {
 
   const subscribe = (listener) => listeners.add(listener);
 
+  // True once osu! has rejected the credentials (or none are saved), after
+  // which nothing more will load until they change.
+  const isUnavailable = () => apiDisabled;
+
+  // True if looking up `lookup` failed, so get() will keep returning null.
+  const hasFailed = (lookup) => failed.has(cacheKey(lookup));
+
   // Pick up credentials entered on the options page without a refresh.
   chrome.storage.onChanged.addListener((changes) => {
     if (!changes.clientId && !changes.clientSecret) return;
     apiDisabled = false;
     queue.length = 0;
     requested.clear();
+    failed.clear();
     notify();
   });
 
-  return { get, subscribe };
+  return { get, subscribe, isUnavailable, hasFailed };
 })();
