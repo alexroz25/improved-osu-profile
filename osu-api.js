@@ -42,9 +42,11 @@ const osuApi = (() => {
     return newToken.accessToken;
   }
 
-  // Star rating of a beatmap (difficulty) with the given mods applied. `mods`
-  // takes the same shape as a score's `mods`, including any mod settings.
-  async function starRating(beatmapId, rulesetId, mods) {
+  // Difficulty attributes of a beatmap (difficulty) with the given mods
+  // applied: its star rating and the skill values pp is calculated from.
+  // `mods` takes the same shape as a score's `mods`, including any mod
+  // settings.
+  async function attributes(beatmapId, rulesetId, mods) {
     for (const refresh of [false, true]) {
       const res = await fetch(`${BASE_URL}/api/v2/beatmaps/${beatmapId}/attributes`, {
         method: 'POST',
@@ -62,9 +64,9 @@ const osuApi = (() => {
       if (res.status === 429) throw new RateLimitError();
       if (!res.ok) throw new Error(`Attributes request failed (${res.status})`);
 
-      return (await res.json()).attributes.star_rating;
+      return (await res.json()).attributes;
     }
   }
 
-  return { requestToken, starRating, CredentialsError, RateLimitError };
+  return { requestToken, attributes, CredentialsError, RateLimitError };
 })();

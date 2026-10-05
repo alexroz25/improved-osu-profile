@@ -1,4 +1,6 @@
-const CACHE_PREFIX = 'sr:';
+// Must match beatmap-attributes.js. 'sr:' entries are left over from older
+// versions, which cached only star ratings; clearing removes them too.
+const CACHE_PREFIXES = ['attr:', 'sr:'];
 
 const form = document.getElementById('credentials');
 const clientIdInput = document.getElementById('client-id');
@@ -13,11 +15,11 @@ const setStatus = (element, text, isError = false) => {
 };
 
 const cacheKeys = async () =>
-  Object.keys(await chrome.storage.local.get(null)).filter((key) => key.startsWith(CACHE_PREFIX));
+  Object.keys(await chrome.storage.local.get(null)).filter((key) => CACHE_PREFIXES.some((prefix) => key.startsWith(prefix)));
 
 const showCacheSize = async () => {
   const count = (await cacheKeys()).length;
-  setStatus(cacheStatus, `${count} saved rating${count === 1 ? '' : 's'}`);
+  setStatus(cacheStatus, `${count} saved beatmap${count === 1 ? '' : 's'}`);
 };
 
 form.addEventListener('submit', async (event) => {
