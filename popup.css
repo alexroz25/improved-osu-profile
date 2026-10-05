@@ -1,0 +1,255 @@
+/* Dark, in the spirit of osu!'s own pages. */
+:root {
+  --bg: hsl(333 10% 15%);
+  --bg-raised: hsl(333 10% 20%);
+  --bg-input: hsl(333 10% 10%);
+  --border: hsl(333 10% 28%);
+  --text: hsl(333 10% 92%);
+  --muted: hsl(333 8% 65%);
+  --accent: hsl(333 100% 70%);
+
+  /* Mod colours by type, as osu!lazer shows them. */
+  --mod-reduction: hsl(90 100% 70%);
+  --mod-increase: hsl(0 100% 70%);
+  --mod-automation: hsl(200 100% 70%);
+  --mod-conversion: hsl(255 100% 70%);
+  --mod-system: hsl(45 100% 57%);
+
+  /* Judgement colours, matching profile.css's hit counts. */
+  --perfect: hsl(200 100% 80%);
+  --great: hsl(200 100% 65%);
+  --good: hsl(140 70% 60%);
+  --ok: hsl(80 80% 60%);
+  --meh: hsl(40 100% 60%);
+  --miss: hsl(0 100% 65%);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 340px;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.4 system-ui, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+.message {
+  margin: 0;
+  padding: 20px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.message a {
+  color: var(--accent);
+}
+
+/* --- Beatmap --- */
+
+.beatmap {
+  padding: 12px 14px 10px;
+  background: var(--bg-raised);
+}
+
+.beatmap__title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.beatmap__version {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  color: var(--muted);
+}
+
+.beatmap__version > :first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.beatmap__stars {
+  flex: none;
+  margin-left: auto;
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Mods --- */
+
+.mods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 10px 14px 0;
+}
+
+.mod {
+  --mod-colour: var(--muted);
+  min-width: 38px;
+  padding: 3px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mod:hover {
+  border-color: var(--mod-colour);
+}
+
+.mod[aria-pressed='true'] {
+  border-color: var(--mod-colour);
+  background: var(--mod-colour);
+  color: var(--bg);
+}
+
+.mod--reduction { --mod-colour: var(--mod-reduction); }
+.mod--increase { --mod-colour: var(--mod-increase); }
+.mod--automation { --mod-colour: var(--mod-automation); }
+.mod--conversion { --mod-colour: var(--mod-conversion); }
+.mod--system { --mod-colour: var(--mod-system); }
+
+/* --- Inputs --- */
+
+.tabs {
+  display: flex;
+  margin: 12px 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabs[hidden] {
+  display: none;
+}
+
+.tabs button {
+  padding: 4px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tabs button[aria-selected='true'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 14px 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.field--wide {
+  grid-column: span 2;
+}
+
+.field input {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-input);
+  font-variant-numeric: tabular-nums;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field input:read-only {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.field--perfect { color: var(--perfect); }
+.field--great { color: var(--great); }
+.field--good { color: var(--good); }
+.field--ok { color: var(--ok); }
+.field--meh { color: var(--meh); }
+.field--miss { color: var(--miss); }
+
+/* --- Result --- */
+
+.result {
+  margin-top: 12px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.result__pp {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.result__unit {
+  margin-left: 3px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.result__detail {
+  margin-top: 2px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.result__table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.result__table th {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 11px;
+}
+
+.result__table td {
+  padding-top: 1px;
+}
+
+.result__note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}

@@ -5,6 +5,10 @@
   "version": "0.1.0",
   "permissions": ["storage"],
   "host_permissions": ["https://osu.ppy.sh/*"],
+  "action": {
+    "default_title": "pp calculator",
+    "default_popup": "popup.html"
+  },
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
