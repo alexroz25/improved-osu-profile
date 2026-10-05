@@ -5,6 +5,7 @@ Improves the look of your osu! profile.
 ## Features
 
 - **Star ratings on scores:** each play in the Scores section (Pinned, Best Performance and First Place) gets a star rating badge next to its difficulty name, coloured the same way osu! colours difficulties. Plays with mods show the star rating with those mods applied; hover the badge to see the rating without mods.
+- **Hit counts on scores:** each play in the Scores section also shows its hit counts to the right of its accuracy, coloured the way osu!'s score page colours them: in osu!, blue for great, green for ok, yellow for meh and red for miss. Taiko, catch and mania profiles show the judgements their score pages show (e.g. all six in mania). Hit counts don't need the API setup below.
 
 ## Installation
 
