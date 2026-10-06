@@ -19,6 +19,10 @@ Each of the four score features above can be turned off on the extension's optio
 
 ## Installation
 
+The extension works in Chrome (and other Chromium browsers, e.g. Edge) and in Firefox 140 or later.
+
+### Chrome
+
 1. Download or clone this repository.
 2. Open `chrome://extensions` and turn on **Developer mode** (top right).
 3. Click **Load unpacked** and select the repository folder.
@@ -26,13 +30,24 @@ Each of the four score features above can be turned off on the extension's optio
 
 After pulling changes, click the reload button on the extension's card in `chrome://extensions`, then refresh the profile page.
 
+### Firefox
+
+1. Download or clone this repository.
+2. Open `about:debugging#/runtime/this-firefox` and click **Load Temporary Add-on…**.
+3. Select the repository's `manifest.json`.
+4. Open any osu! profile, e.g. <https://osu.ppy.sh/users/15806061>.
+
+After pulling changes, click **Reload** on the extension's entry in `about:debugging`, then refresh the profile page. Firefox removes temporary add-ons when it closes, so load it again after a restart.
+
+Firefox puts the extension's icon (for the pp calculator) under the **Extensions** button (the puzzle piece) in the toolbar; pin it from there to keep it in the toolbar. If nothing shows up on profiles, open `about:addons`, click OsuProfile+, and check that it's allowed to access osu.ppy.sh under **Permissions**.
+
 ## Setting up modded star ratings, max pp and the pp calculator
 
 Without this step, the badges show each map's base star rating (no mods), max pp isn't shown and the pp calculator asks for credentials. All three need your own osu! API credentials:
 
 1. On osu!, go to [Account settings → OAuth](https://osu.ppy.sh/home/account/edit#oauth) and click **New OAuth Application**.
 2. Give it any name. For **Application Callback URLs**, enter `http://localhost` (it isn't used).
-3. Open the extension's options: on `chrome://extensions`, click **Details** on OsuProfile+, then **Extension options**.
+3. Open the extension's options: on `chrome://extensions`, click **Details** on OsuProfile+, then **Extension options**. In Firefox, open `about:addons`, click OsuProfile+, then open its options tab.
 4. Paste the application's **Client ID** and **Client Secret** and click **Save**. The extension checks them with osu! and shows **Saved** if they work.
 
 Open profile tabs pick up the credentials automatically. The calculator's popup also links to the options page when no credentials are set.
@@ -43,3 +58,17 @@ Open profile tabs pick up the credentials automatically. The calculator's popup 
 - Beatmap difficulty details (star ratings and what max pp is calculated from) are cached for 30 days, so each play is only looked up once. To force a refresh (e.g. after an osu! star rating rework), click **Clear cache** on the options page.
 - When osu! changes its pp formulas, max pp and the calculator need an extension update (`pp-calculator.js`) to match; star rating changes come through the API on their own.
 - The first visit to a profile with many plays can take a minute or two to fill in, as requests are spaced out to stay within osu!'s API rate limits.
+
+## Privacy
+
+The extension only talks to osu!, and stores your credentials and cached beatmap details in your browser. See [PRIVACY.md](PRIVACY.md).
+
+## Publishing
+
+Both stores take the same zip. Bump `version` in `manifest.json` (each upload needs a higher one), commit, then build the zip from the commit:
+
+```sh
+git archive -o osu-profile-plus.zip HEAD
+```
+
+`.gitattributes` leaves the repo-only files (README, `.github`, etc.) out of it. Upload the zip to the [Chrome Web Store developer dashboard](https://chrome.google.com/webstore/devconsole) and to [addons.mozilla.org](https://addons.mozilla.org/developers/). The code isn't minified or bundled, so AMO doesn't need a separate source upload. The Firefox add-on ID in `manifest.json` (`browser_specific_settings.gecko.id`) can't change once the add-on is on AMO.

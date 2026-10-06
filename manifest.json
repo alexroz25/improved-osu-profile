@@ -1,13 +1,35 @@
 {
   "manifest_version": 3,
   "name": "OsuProfile+",
-  "description": "Improves the look of your osu! profile.",
+  "description": "Unofficial: adds star ratings, hit counts, backgrounds and max pp to osu! profile scores, plus a pp calculator.",
   "version": "0.1.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "improved-osu-profile@extension",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["authenticationInfo"]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
+  },
   "permissions": ["storage"],
   "host_permissions": ["https://osu.ppy.sh/*"],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "action": {
     "default_title": "pp calculator",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
   },
   "options_ui": {
     "page": "options.html",

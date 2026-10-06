@@ -265,18 +265,34 @@ const currentAttributes = () => {
 
 // --- Rendering ---
 
-const showMessage = (html) => {
+// Takes text and link() elements rather than HTML, so error messages from
+// osu! are never parsed as markup.
+const showMessage = (...parts) => {
   $('calculator').hidden = true;
   $('message').hidden = false;
-  $('message').innerHTML = html;
-  $('message').querySelector('[data-open-options]')?.addEventListener('click', (event) => {
+  $('message').replaceChildren(...parts);
+};
+
+const link = (text, href) => {
+  const a = document.createElement('a');
+  a.textContent = text;
+  a.href = href;
+  a.target = '_blank';
+  return a;
+};
+
+const optionsLink = (text) => {
+  const a = link(text, '#');
+  a.removeAttribute('target');
+  a.addEventListener('click', (event) => {
     event.preventDefault();
     chrome.runtime.openOptionsPage();
   });
+  return a;
 };
 
-const CREDENTIALS_MESSAGE =
-  'The calculator needs your osu! API credentials. <a href="#" data-open-options>Set them up in the options</a>.';
+const showCredentialsMessage = () =>
+  showMessage('The calculator needs your osu! API credentials. ', optionsLink('Set them up in the options'), '.');
 
 const savePreferences = () => {
   chrome.storage.local.set({ calculator: { mods: [...state.mods], input: state.input } }).catch(() => {});
@@ -385,7 +401,7 @@ const ppOf = (attributes, play) =>
 
 const update = () => {
   if (beatmapAttributes.isUnavailable()) {
-    showMessage(CREDENTIALS_MESSAGE);
+    showCredentialsMessage();
     return;
   }
 
@@ -473,13 +489,13 @@ const start = async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const page = tab?.url ? beatmapFromUrl(tab.url) : null;
   if (!page) {
-    showMessage('Open a beatmap on <a href="https://osu.ppy.sh/beatmapsets" target="_blank">osu.ppy.sh</a> to calculate its pp.');
+    showMessage('Open a beatmap on ', link('osu.ppy.sh', 'https://osu.ppy.sh/beatmapsets'), ' to calculate its pp.');
     return;
   }
 
   const { clientId, clientSecret, calculator } = await chrome.storage.local.get(['clientId', 'clientSecret', 'calculator']);
   if (!clientId || !clientSecret) {
-    showMessage(CREDENTIALS_MESSAGE);
+    showCredentialsMessage();
     return;
   }
 
@@ -488,7 +504,8 @@ const start = async () => {
   try {
     beatmap = await loadBeatmap(page);
   } catch (error) {
-    showMessage(error instanceof osuApi.CredentialsError ? CREDENTIALS_MESSAGE : `Couldn't load this beatmap from osu! (${error.message}).`);
+    if (error instanceof osuApi.CredentialsError) showCredentialsMessage();
+    else showMessage(`Couldn't load this beatmap from osu! (${error.message}).`);
     return;
   }
 
