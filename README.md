@@ -1,5 +1,9 @@
 # OsuProfile+
 
+## NOW AVAILABLE ON FIREFOX: https://addons.mozilla.org/en-US/firefox/addon/osuprofile/
+
+Chrome soon 🤞
+
 Improves the look of your osu! profile.
 
 ## Features
