@@ -9,8 +9,16 @@
 
 const beatmapAttributes = (() => {
   const CACHE_PREFIX = 'attr:';
+  // Left over from older versions, which cached only star ratings.
+  const LEGACY_CACHE_PREFIX = 'sr:';
   // Attributes change only with occasional osu! difficulty reworks.
   const CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
+  // Expired entries are only replaced when their beatmap is looked up again,
+  // so sweep out the rest about once a day.
+  const SWEEP_INTERVAL = 24 * 60 * 60 * 1000;
+  // Chrome caps storage.local at 10 MB, shared with the settings; if the cache
+  // fills it, this fraction of the oldest entries makes room.
+  const EVICT_FRACTION = 0.25;
   // osu! asks API users to stay around 60 requests per minute.
   const REQUEST_INTERVAL = 1000;
   const RATE_LIMIT_BACKOFF = 60 * 1000;
@@ -42,6 +50,47 @@ const beatmapAttributes = (() => {
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+  // Removes expired (and legacy) cache entries, plus `fraction` of the oldest
+  // ones left.
+  const removeOldEntries = async (fraction = 0) => {
+    const now = Date.now();
+    const entries = Object.entries(await chrome.storage.local.get(null))
+      .filter(([key]) => key.startsWith(CACHE_PREFIX) || key.startsWith(LEGACY_CACHE_PREFIX))
+      .map(([key, value]) => ({ key, savedAt: key.startsWith(CACHE_PREFIX) ? value?.savedAt ?? 0 : 0 }))
+      .sort((a, b) => a.savedAt - b.savedAt);
+    const expired = entries.filter(({ savedAt }) => now - savedAt >= CACHE_TTL).length;
+    const count = expired + Math.ceil((entries.length - expired) * fraction);
+    if (count > 0) await chrome.storage.local.remove(entries.slice(0, count).map(({ key }) => key));
+  };
+
+  const sweepExpired = async () => {
+    try {
+      const { lastCacheSweep = 0 } = await chrome.storage.local.get('lastCacheSweep');
+      if (Date.now() - lastCacheSweep < SWEEP_INTERVAL) return;
+      // Sweep before recording it, so a full storage.local still gets cleared.
+      await removeOldEntries();
+      await chrome.storage.local.set({ lastCacheSweep: Date.now() });
+    } catch (error) {
+      console.warn('OsuProfile+: could not clear expired beatmap attributes', error);
+    }
+  };
+
+  const save = async (key, attributes) => {
+    const entry = { [key]: { attributes, savedAt: Date.now() } };
+    try {
+      await chrome.storage.local.set(entry);
+    } catch {
+      // Most likely storage.local is full; make room and try once more.
+      try {
+        await removeOldEntries(EVICT_FRACTION);
+        await chrome.storage.local.set(entry);
+      } catch (error) {
+        // The attributes still show on this page, just aren't kept.
+        console.warn('OsuProfile+: could not save beatmap attributes', error);
+      }
+    }
+  };
+
   const runQueue = async () => {
     if (queueRunning) return;
     queueRunning = true;
@@ -51,8 +100,8 @@ const beatmapAttributes = (() => {
       try {
         const attributes = await osuApi.attributes(lookup.beatmapId, lookup.rulesetId, apiMods(lookup.mods));
         loaded.set(key, attributes);
-        await chrome.storage.local.set({ [key]: { attributes, savedAt: Date.now() } });
         notify();
+        await save(key, attributes);
       } catch (error) {
         if (error instanceof osuApi.CredentialsError) {
           // No working OAuth app set up; features fall back to what they can
@@ -126,6 +175,8 @@ const beatmapAttributes = (() => {
     failed.clear();
     notify();
   });
+
+  sweepExpired();
 
   return { get, subscribe, isUnavailable, hasFailed };
 })();
