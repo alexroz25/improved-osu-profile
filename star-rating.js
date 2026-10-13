@@ -90,7 +90,7 @@
     const on = profileFeatures.enabled('starRatings');
 
     // Only the Scores section; Historical reuses the same row markup.
-    for (const row of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail')) {
+    for (const [position, row] of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail').entries()) {
       const container = row.querySelector('.play-detail__beatmap-and-time');
       if (!container) continue;
 
@@ -106,7 +106,7 @@
 
       let rating = score.baseRating;
       if (score.mods.length > 0) {
-        const modded = beatmapAttributes.get(score)?.star_rating;
+        const modded = beatmapAttributes.get(score, position)?.star_rating;
         if (typeof modded === 'number') rating = modded;
       }
 

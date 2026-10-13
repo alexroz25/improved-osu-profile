@@ -53,10 +53,10 @@
   // score id -> max pp, so each one is only calculated once
   const maxPps = new Map();
 
-  const maxPpOf = (scoreId, score) => {
+  const maxPpOf = (scoreId, score, position) => {
     if (maxPps.has(scoreId)) return maxPps.get(scoreId);
 
-    const attributes = beatmapAttributes.get(score);
+    const attributes = beatmapAttributes.get(score, position);
     if (attributes == null) return null;
 
     const pp = ppCalculator.maxPp({ ...score, attributes });
@@ -71,14 +71,14 @@
     const on = profileFeatures.enabled('maxPp');
 
     // Only the Scores section, matching star-rating.js.
-    for (const row of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail')) {
+    for (const [position, row] of document.querySelectorAll('[data-page-id="top_ranks"] .play-detail').entries()) {
       const ppColumn = row.querySelector('.play-detail__pp');
       if (!ppColumn) continue;
 
       const scoreId = scoreIdOf(row);
       // Turned off on the options page: remove any max pp already shown.
       const score = on ? scores.get(scoreId) : null;
-      const pp = score == null ? null : maxPpOf(scoreId, score);
+      const pp = score == null ? null : maxPpOf(scoreId, score, position);
       let el = ppColumn.querySelector('.osu-profile-plus-max-pp');
 
       if (pp == null) {
