@@ -2,7 +2,7 @@
 
 ## NOW AVAILABLE ON FIREFOX: https://addons.mozilla.org/en-US/firefox/addon/osuprofile/
 
-Chrome soon 🤞
+## AND CHROME: https://chromewebstore.google.com/detail/osuprofile+/fjdikdcloilhlljclanajlkfaiahnlnm
 
 Improves the look of your osu! profile.
 
