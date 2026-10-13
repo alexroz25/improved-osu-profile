@@ -30,6 +30,9 @@ const beatmapAttributes = (() => {
   // cache keys whose lookup failed on this page load (they aren't retried)
   const failed = new Set();
   const queue = [];
+  // cache key -> lowest position on the page any caller asked for it at, so
+  // lookups run top to bottom whichever feature asks first
+  const positions = new Map();
   const listeners = new Set();
   let queueRunning = false;
   let apiDisabled = false;
@@ -96,7 +99,8 @@ const beatmapAttributes = (() => {
     queueRunning = true;
 
     while (queue.length > 0 && !apiDisabled) {
-      const { key, lookup } = queue.shift();
+      const next = queue.reduce((best, entry, i) => (positions.get(entry.key) < positions.get(queue[best].key) ? i : best), 0);
+      const { key, lookup } = queue.splice(next, 1)[0];
       try {
         const attributes = await osuApi.attributes(lookup.beatmapId, lookup.rulesetId, apiMods(lookup.mods));
         loaded.set(key, attributes);
@@ -144,11 +148,15 @@ const beatmapAttributes = (() => {
 
   // Attributes for `lookup` ({ beatmapId, rulesetId, mods }) if they've
   // loaded, otherwise null; the first call starts loading them, and
-  // subscribers are notified when they arrive.
-  const get = (lookup) => {
+  // subscribers are notified when they arrive. `position` is where the
+  // caller shows them on the page (e.g. its row index); lookups nearer the
+  // top (lower positions) run first.
+  const get = (lookup, position = Infinity) => {
     const key = cacheKey(lookup);
     const attributes = loaded.get(key);
     if (attributes != null) return attributes;
+
+    if (!(positions.get(key) <= position)) positions.set(key, position);
 
     if (!apiDisabled && !requested.has(key)) {
       requested.add(key);
